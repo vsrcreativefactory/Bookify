@@ -141,14 +141,6 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-#twilio credentials
-
-ACCOUNT_SID='ACcb5b2dfa9e00aade7cdd0348fed1c40e'
-AUTH_TOKEN='d9305f00f8728bacbe811ca90299ef8f'
-COUNTRY_CODE='+91'
-TWILIO_PHONE_NUMBER='+1 240 767 6083'
-
-
 #for email verification
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
