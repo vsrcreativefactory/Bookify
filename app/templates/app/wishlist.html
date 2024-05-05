@@ -1,0 +1,62 @@
+{% extends 'app/base.html' %}
+{% load static %}
+{% block title %}{% endblock %}
+
+{% block main-content %}
+<div class="container my-5">
+    <div class="row">
+        <h3 style="font-family: 'Arial', sans-serif; text-transform: capitalize;">
+            Welcome <span style="font-family: 'Courier New', monospace;">{{ request.user }}📖</span>
+        </h3>
+        <h1 class="text-center mb-5" style="font-family: 'Arial Black', sans-serif; color: #198754; text-shadow: 0px 0px 4px rgba(0, 0, 0, 0.5);font-size: 35px;">Your Wishlist❤️</h1>
+        {% if product %}
+        <div class="col-sm-8">
+            <div class="row">
+                {% for prod in product %}
+                <div class="col-sm-4 text-center mb-4 hover-shadow">
+                    <a href="{% url 'product-detail' prod.product_id %}" class="btn">
+                        <div>
+                            <img src="{{prod.product.product_image.url}}" style="max-width: 100%; max-height: 200px; object-fit: contain;"/>
+                            <div class="fw-bold">{{prod.product.title}}</div>
+                            <div class="fw-bold text-danger">
+                                ₹ {{prod.product.discounted_price}}/-
+                                <small class="fw-light text-decoration-line-through">{{prod.product.selling_price}}</small>
+                            </div>
+                        </a>
+            <!-- Optionally, include order details here -->
+            <form action="{% url 'add-to-cart' %}" method="GET" class="d-inline" onsubmit="return addToCart(event, {{prod.product.stock}});">
+                <input type="hidden" name="prod_id" value={{prod.product.id}} />
+                <button type="submit" class="btn btn-outline-success shadow px-5 py-2">Add to Cart</button>
+            </form>
+            {% comment %} <a href="{% url 'home' %}" class="btn btn-danger">Add to Cart</a> {% endcomment %}
+            <a href="{% url 'delete_from_wishlist' prod.product_id %}" onclick="return confirm('Are you sure you want to delete this item from the wishlist?');" style="background-color: white; display: inline-block; padding: 5px; border-radius: 50%;">
+                <img src="{% static 'app/images/banner/delete.png' %}" alt="Remove" style="width: 35px; height: 35px;">
+            </a>                                   
+                        </div>
+                </div>
+                {% endfor %}
+            </div>
+            <div id="stock-error" class="alert alert-danger" style="display: none;">
+                This product is currently out of stock
+            </div>
+            <br><br><br>
+        </div>
+        {% else %}
+        <div class="col-12">
+            <h1 class="text-center mb-5" style="font-family: 'Arial Black', sans-serif; color: #198754; text-shadow: 0px 0px 4px rgba(0, 0, 0, 0.5);font-size: 35px;">is Empty !</h1>
+        </div>
+        {% endif %}
+    </div>
+</div>
+<script>
+    function addToCart(event, stock) {
+        if (stock === 0) {
+            document.getElementById('stock-error').style.display = 'block';
+            
+            event.preventDefault(); // Prevent form submission
+            return false;
+        }
+        return true;
+    }
+</script>
+{% endblock main-content %}

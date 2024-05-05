@@ -1,0 +1,47 @@
+{% extends 'dashboard.html' %}
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Bookify live</title>
+</head>
+<body>
+    {% block navbar-text %}
+        <span class="navbar-text" style="font-family: 'Pacifico', cursive; font-size: 1.5rem; color: #333;">
+            <strong>Admin Profile</strong>
+        </span>
+    {% endblock navbar-text %}
+
+    {% block main-content %}
+	<div class="center-content">
+	<img src="{% static 'images/Admin-Profile-Vector-PNG.png' %}" alt="admin" width="512" height="512">
+    <h1>Name of company : Bookify Live</h1>	
+    <h1>Registration ID : 8456/236184/2024</h1>
+    <h1>Type of company : Startup</h1>
+    <h1>GST number : 27AAACH7409R1Z1</h1>
+    <h1>Place of operation : Online</h1>
+    <h1>Type of operation : Book delivery service</h1>
+    <h1>Customer care number : 1800 7865 2345</h1>
+</div>
+	<style>
+		.center-content {
+			text-align: center;
+			margin: auto;
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			justify-content: center;
+			height: 100vh; /* This makes the container take up the full height of the viewport */
+		}
+	
+		.center-content img {
+			width: 512px; /* Adjust the width as needed */
+			height: 512px; /* Adjust the height as needed */
+			margin-bottom: 20px; /* Adjust the margin as needed */
+		}
+	</style>
+	{% endblock main-content %}
+</body>
+</html>

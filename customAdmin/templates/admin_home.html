@@ -1,0 +1,31 @@
+{% extends 'dashboard.html' %}
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Bookify live</title>
+</head>
+<body>
+    {% block navbar-text %}
+    <span class="text-center" style="font-family: 'Pacifico', cursive; font-size: 1.5rem; color: #333;">
+        Welcome Back <strong>Admin</strong>
+    </span>
+    {% endblock navbar-text %}
+
+    {% block main-content %}
+    <style>
+        .center-image {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            max-width: 100%;
+            max-height: 100%;
+        }
+    </style>
+    <img src="{% static 'app\images\banner\logo.png' %}" alt="logo" class="center-image">
+    {% endblock main-content %}
+</body>
+</html>

@@ -1,0 +1,102 @@
+{% extends 'dashboard.html' %}
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <title>Bookify live</title>
+</head>
+<body>
+    {% block navbar-text %}
+        <span class="navbar-text" style="font-family: 'Pacifico', cursive; font-size: 1.5rem; color: #333;">
+            <strong>All Users</strong>
+        </span>
+    {% endblock navbar-text %}
+    {% block search-bar %}
+    <form class="d-flex">
+      <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search" id="searchInput">
+      <button class="btn btn-outline-success" type="button" onclick="performSearch()">
+          Go
+      </button>
+    </form>
+    {% endblock search-bar %}
+
+    {% block main-content %}
+    <style>
+      .highlighted {
+        background-color: yellow; /* Change the background color as desired */
+        color: black; /* Change the text color as desired */
+        font-weight: bold; /* Optionally, make the text bold */
+    }    
+    </style>
+<div class="container mt-5">
+    <table class="table table-striped table-hover">
+        <thead>
+          <tr>
+            <th scope="col">ID</th>
+            <th scope="col">USERNAME</th>
+            <th scope="col">EMAIL ID</th>
+            <th scope="col">DATE JOINED</th>
+          </tr>
+        </thead>
+        <tbody>
+    {% for user in users %}
+          <tr>
+            <td>{{ user.id }}</td>
+            <td>{{ user.username }}</td>
+            <td>{{ user.email }}</td>
+            {% comment %} <td>{{ user.first_name }}</td>
+            <td>{{ user.last_name }}</td> {% endcomment %}
+            <td>{{ user.date_joined }}</td>
+          </tr>
+    {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+    <script>
+      function performSearch() {
+          // Retrieve the search query
+          var searchQuery = document.getElementById('searchInput').value.trim();
+          
+          // If the search query is empty, do nothing
+          if (searchQuery === '') {
+              return;
+          }
+      
+          // Remove any existing highlighting
+          var highlightedElements = document.querySelectorAll('.highlighted');
+          highlightedElements.forEach(function(element) {
+              element.outerHTML = element.innerHTML; // Replace the element with its content
+          });
+      
+          // Find all occurrences of the search query in the page content
+          var pageContent = document.body.innerHTML;
+          var searchRegex = new RegExp(searchQuery, 'gi'); // 'gi' flag for case-insensitive and global search
+          var matches = pageContent.match(searchRegex);
+      
+          // Wrap each occurrence of the search query with a span element for highlighting
+          if (matches) {
+              matches.forEach(function(match) {
+                  var replacement = '<span class="highlighted">' + match + '</span>';
+                  pageContent = pageContent.replace(new RegExp(match, 'gi'), replacement);
+              });
+      
+              // Update the page content
+              document.body.innerHTML = pageContent;
+      
+              // Scroll to the first occurrence of the search query
+              var firstMatch = document.querySelector('.highlighted');
+              if (firstMatch) {
+                  firstMatch.scrollIntoView({ behavior: 'smooth', block: 'center' });
+              }
+          }
+      }
+      </script>
+    {% endblock main-content %}
+</body>
+</html>
+

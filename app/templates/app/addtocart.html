@@ -1,0 +1,263 @@
+{% extends 'app/base.html' %}
+{% load static %}
+{% block title %}{% endblock title %}
+
+{% block main-content %}
+<style>
+    .content-wrapper {
+        display: flex;
+        justify-content: space-between;
+        gap: 100px;
+    }
+
+    .shopping-cart {
+        flex-grow: 1; /* Takes up the remaining space */
+        margin-right: 20px;
+    }
+
+    .total-amount-card-wrapper {
+        width: 500px;
+        position: sticky;
+        top: 20px;
+        padding-left: 100px;
+    }
+    
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@600&display=swap');
+    @keyframes pop {
+        0% { transform: scale(0.95); opacity: 0.7; }
+        50% { transform: scale(1.05); opacity: 1; }
+        100% { transform: scale(1); opacity: 1; }
+    }
+    
+    .total-amount-total {
+        animation: pop 5.9s ease-out forwards 3;
+    }
+    @media (max-width: 768px) {
+        .total-amount-card-wrapper {
+            width: 100%; /* Full width on smaller screens */
+            margin-top: 40px; /* Add some space above the card */
+        }
+    }
+    
+    .custom-alert {
+        color: red;
+    }     
+        
+</style>
+<div class="container my-5">
+    <div class="row">
+        <h3 style="font-family: 'Arial', sans-serif; text-transform: capitalize;">
+             <span style="font-family: 'Courier New', monospace;">📖{{ request.user }}'s</span>
+        </h3>
+        <div class="content-wrapper">
+        <div class="shopping-cart">
+        {% if cart %}
+            <div class="col-sm-12">
+                <h1 class="text-center mb-5" style="font-family: 'Arial Black', sans-serif; color: #198754; text-shadow: 0px 0px 4px rgba(0, 0, 0, 0.5);font-size: 35px;">Shopping Cart🛒</h1>
+                {% for item in cart %}
+                <div id="stock-error" class="alert alert-danger" style="display: none;">
+                    Sorry, only this many items are available⚠️
+                </div>
+                    <div class="row">
+                        <div class="col-sm-3 text-center align-self-center">
+                            <img src="{{item.product.product_image.url}}" alt="" srcset="" class="img-fluid img-thumbnail shadow-sm" height="150" width="150">
+                        </div>
+                        <div class="col-sm-9">
+                            <div>
+                            <h5>{{item.product.title}}</h5>
+                            <p class="mb-2 text-muted small">{{item.product.author}}</p>
+                            <div class="my-3">
+                                <label for="quantity">Quantity:</label>
+                                <a class="minus-cart" pid={{item.product.id}}><i class="fas fa-minus-square fa-lg" style="color: red;"></i></a>
+                                <span id="quantity"> {{item.quantity}} </span>
+                                <a class="plus-cart" pid={{item.product.id}}><i class="fas fa-plus-square fa-lg" style="color: green;"></i></a>
+                            </div>
+                            {% comment %} {% if messages %}
+                                {% for message in messages %}
+                                <div class="alert {{ message.tags }}">
+                                    {{ message }}
+                                </div>
+                                {% endfor %}
+                            {% endif %} {% endcomment %}
+
+                            <div class="d-flex justify-content-between">
+                                <a href="#" class="remove-cart btn btn-sm btn-secondary mr-3" pid={{item.product.id}}>Remove item</a>
+                                <p class="mb-0"><span><strong>₹ {{item.product.discounted_price}}</strong></span></p>
+                            </div>
+                            </div>
+                        </div>
+                    </div> 
+                    <hr class="text-muted">
+                {% endfor %}
+                <br><br><br>
+            </div>
+            {% else %}
+            <h1 class="text-center mb-5" style="font-family: 'Arial Black', sans-serif; color: #198754; text-shadow: 0px 0px 4px rgba(0, 0, 0, 0.5);font-size: 35px;">Cart is Empty !</h1>
+            {% endif %}
+
+    </div>
+<div class="col-sm-4">
+    <div class="card text-white bg-success mb-3" style="max-width: 18rem;">
+        <div class="card-header">Wallet Balance: ₹ {{ wallet.balance }}</div>
+        <div class="card-body">
+          <h5 class="card-title">The Total Amount of</h5>
+            {% comment %} <h3 class="total-amount-title">The Total Amount of</h3> {% endcomment %}
+            <ul class="list-group total-amount-list">
+                <li class="list-group-item d-flex justify-content-between align-items-center">Amount<span id="amount">₹ {{amount}}</span></li>
+                <li class="list-group-item d-flex justify-content-between align-items-center">Shipping<span>₹ 40.00</span></li>
+                <li class="list-group-item d-flex justify-content-between align-items-center">Tax<span>₹ 20.00</span></li>
+                <li class="list-group-item d-flex justify-content-between align-items-center">- Offer<span>
+                    {% if item.product.id in active_offers %}
+                        {% for offer in active_offers.item.product.id %}
+                            {{ offer.discount_percentage }}% off
+                            {% if not forloop.last %}, {% endif %}
+                        {% endfor %}
+                    {% else %}
+                    10%
+                    {% endif %}
+                </span></li>
+                <li class="list-group-item d-flex justify-content-between align-items-center total-amount-total">
+                    <div>
+                    <strong>Total</strong> <small>(including GST)</small>
+                    </div>
+                    <span id="totalamount"><strong>{% if cart %}₹ {{totalamount}} {% else %} ₹ 0 {% endif %}</strong></span>
+                </li>
+            </ul>
+        </div>
+    </div>
+    <br><br>
+    <div class="cd-md-3" >
+        <div class="card mb-3" style="border: 2px solid yellow;">
+            <div class="card-body">
+                <form "yellow-border" method="POST">
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <label>Have Coupon?</label>
+                        <div class="input-group">
+                            <input type="text" name="coupon_code" class="form-control" placeholder="Coupon code"></input>
+                            <span class="input-group-append">
+                                <button type="submit" class="btn btn-warning">Apply</button>
+                            </span>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>   
+    </div>
+    {% for message in all_messages %}
+        <div class="alert alert-{{ message.tags }} custom-alert">
+            {{ message }}
+        </div>
+    {% endfor %}
+     <!-- Add the "show coupons" link here -->
+     <div class="text-end">
+        <a href="#" id="showCouponsLink" style="text-decoration: none; color: inherit; font-size: 13px;"><span>Show Coupons</span></a> 
+<br><br>
+<div class="d-grid">
+    {% if cart %}
+        <a href="{% url 'checkout' %}" class="btn btn-danger place-order-btn"><strong>Place Order</strong></a>
+    {% else %}
+        <button class="btn btn-danger place-order-btn" disabled><strong>Place Order</strong></button>
+        <p class="text-muted">Please add items to your cart before placing an order</p>
+    {% endif %}
+</div>
+<br>
+<!-- Define a hidden table containing the coupons -->
+<div id="couponsTable" style="display: none;">
+    <table class="table table-striped">
+        <thead style="text-align: left;">
+            <tr>
+                <th scope="col">Coupon Code</th>
+                <th scope="col">Purchase Limit</th>
+                <th scope="col">Discount</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for coupon in coupons %}
+            {% if coupon.active %}
+              <tr>
+                <td style="text-align: left;">{{ coupon.coupon_code }}</td>
+                <td style="text-align: left;">₹{{ coupon.lower_limit|floatformat:"0" }} - ₹{{ coupon.upper_limit|floatformat:"0" }}</td>
+                <td style="text-align: left;">₹{{ coupon.discount|floatformat:"0" }}</td>
+              </tr>
+            {% endif %}
+        {% empty %}
+            <tr>
+                <td colspan="3">No coupons are available</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+<br><br>
+</div>
+
+    
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js" integrity="sha384-oBqDVmMz9ATKxIep9tiCxS/Z9fNFEXIDAYTujMA@BAsjFuCZSmKbSSUnQlmh/jp3" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/js/bootstrap.min.js" integrity="sha384-IDwel +LCz02R0U9k972gdyv1+AESN10+x7tBKgc915HFtuNz@wWnPc1zo6p9vxnk" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
+
+<script src="{% static 'app/js/owl.carousel.min.js' %}"></script>
+<script src="{% static 'app/js/all.min.js' %}"></script> 
+<script src="{% static 'app/js/myscript.js' %}"></script>
+
+<script>
+    // JavaScript to toggle the visibility of the table when the link is clicked
+    document.getElementById('showCouponsLink').addEventListener('click', function(event) {
+        event.preventDefault();
+        var couponsTable = document.getElementById('couponsTable');
+        if (couponsTable.style.display === 'none') {
+            couponsTable.style.display = 'block';
+        } else {
+            couponsTable.style.display = 'none';
+        }
+    });
+    $('.plus-cart').click(function(){
+        var id=$(this).attr("pid").toString();
+        var eml = this.parentNode.children[2];
+        var quantity = parseInt(eml.innerText) + 1;
+        var stock = {{ product_stocks|safe }}[id];  // Access the stock information for the product
+
+        // Check if the quantity exceeds the stock
+        if (quantity > stock) {
+            document.getElementById('stock-error').style.display = 'block';
+            //alert("Sorry, only " + stock + " item(s) are available.");
+            return false;
+        } else {
+            document.getElementById('stock-error').style.display = 'none';
+        }
+        // If quantity does not exceed stock, proceed with the AJAX request to update cart 
+        $.ajax({
+            type:"GET",
+            url:"/pluscart",
+            data:{
+                prod_id:id
+            },
+            success:function(data){
+                eml.innerText=data.quantity 
+                document.getElementById("amount").innerText=data.amount 
+                document.getElementById("totalamount").innerText=data.totalamount
+            }
+        })
+    })
+
+    $('.minus-cart').click(function(){
+        var id=$(this).attr("pid").toString();
+        var eml=this.parentNode.children[2] 
+        if (parseInt(eml.innerText) > 1) {
+            $.ajax({
+                type:"GET",
+                url:"/minuscart",
+                data:{
+                    prod_id:id
+                },
+                success:function(data){
+                    eml.innerText=data.quantity 
+                    document.getElementById("amount").innerText=data.amount 
+                    document.getElementById("totalamount").innerText=data.totalamount
+                }
+            })
+    }
+    })
+</script>
+{% endblock main-content %}

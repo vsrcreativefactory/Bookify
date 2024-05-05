@@ -1,0 +1,86 @@
+{% extends 'dashboard.html' %}
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bookify live</title>
+</head>
+<body>
+    {% block navbar-text %}
+        <span class="navbar-text" style="font-family: 'Pacifico', cursive; font-size: 1.5rem; color: #333;">
+            <strong>Sales report</strong>
+        </span>
+    {% endblock navbar-text %}
+
+    {% block main-content %}
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+        .container {
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        h2 {
+            text-align: center;
+        }
+        form {
+            margin-top: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        input[type="date"] {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        input[type="submit"] {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            float: right;
+        }
+        input[type="submit"]:hover {
+            background-color: #45a049;
+        }
+    </style>    
+
+    <div class="container">
+        <h2>Generate PDF Report</h2>
+        <form action="{% url 'report_pdf_order' %}" method="post">
+            {% csrf_token %}
+            <label for="time_period">Select Time Period:</label>
+            <select id="time_period" name="time_period">
+                <option value="">None</option>
+                <option value="1_day">1 Day</option>
+                <option value="1_week">1 Week</option>
+                <option value="1_month">1 Month</option>
+            </select>
+            <br><br>
+            <label for="from_date">From Date:</label>
+            <input type="date" id="from_date" name="from_date" required>
+            <label for="to_date">To Date:</label>
+            <input type="date" id="to_date" name="to_date" required>
+            <input type="submit" value="Generate Report">
+        </form>
+    </div>
+    
+    {% endblock main-content %}
+</body>
+</html>

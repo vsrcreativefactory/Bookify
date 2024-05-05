@@ -1,0 +1,77 @@
+{% extends 'dashboard.html' %}
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Bookify live</title>   
+</head>
+<body>
+    {% block navbar-text %}
+        <span class="navbar-text" style="font-family: 'Pacifico', cursive; font-size: 1.5rem; color: #333;">
+            <strong>Add products</strong>
+        </span>
+    {% endblock navbar-text %}
+
+    {% block main-content %}
+
+    <style>
+        body {
+            background-color: #FFFFFF; /* Set your desired background color */
+            font-family: 'Arial', sans-serif; /* Change the font family if needed */
+            color: #FFFFFF;
+        }
+
+        .form-container {
+            width: 700px !important;
+            margin: 50px auto;
+            padding: 20px;
+            border: 1px solid #ddd; /* Set your desired border color */
+            background-color: #115FBB ; /* Set your desired background color */
+            border-radius: 10px; /* Set your desired border radius */
+            box-shadow: 0 0 50px rgba(0, 0, 0, 0.1); /* Add a subtle box shadow */
+        }
+
+        /* Add any additional styling as needed */
+        /* For example, you can style form elements individually */
+
+        .form-container label {
+            display: block;
+            margin-bottom: 8px;
+        }
+
+        .form-container input[type="text"],
+        .form-container input[type="number"] {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 12px;
+            box-sizing: border-box;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        .form-container button {
+            background-color: #4caf50; /* Set your desired button color */
+            color: #fff;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .form-container button:hover {
+            background-color: #45a049; /* Change the button color on hover if needed */
+        }
+    </style>
+    
+    <div class="form-container">
+	<form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="btn btn-success">Submit</button>
+    </form>
+</div>
+    {% endblock main-content %}
+</body>
+</html>

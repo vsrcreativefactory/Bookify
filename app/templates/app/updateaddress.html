@@ -1,0 +1,43 @@
+{% extends 'app/base.html' %}
+{% load static %}
+{% block title %}{% endblock title %}
+
+{% block main-content %}
+<div class="container my-5">
+    <div class="row">
+        <h3 style="font-family: 'Arial', sans-serif; text-transform: capitalize;">
+            Welcome <span style="font-family: 'Courier New', monospace;">{{ request.user }}📖</span>
+        </h3>
+        <div class="col-sm-8 offset-sm-1">
+            <form action="" method="post" style="color: #198754; border: 20px solid #ddd; padding: 20px; border-radius: 20px;">
+                {% csrf_token %}
+                {% for fm in form %}
+                    {{fm.label_tag}} {{fm}} <small class="text-danger">{{fm.errors|striptags}}</small><br>
+                {% endfor %}
+                <div class="col-12 mt-3 d-flex justify-content-between">
+                    <button type="submit" class="btn btn-warning">Update</button>
+                    <a href="{% url 'address' %}" class="btn btn-danger">Back</a>
+                </div>        
+    
+                {% if form.non_field_errors %}
+                    {% for error in form.non_field_errors %}
+                    <p class="alert alert-danger my-3">{{error}}</p>
+                    {% endfor %}
+                {% endif %}
+    
+                {% if messages %}
+                    {% for msg in messages %}
+                        <div class="alert alert-{{msg.tags}}" role="alert">
+                            {{msg}}
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            </form>
+        </div>
+
+        <div>
+            <br><br><br><br><br>
+        </div>
+    </div>
+</div>
+{% endblock main-content %}

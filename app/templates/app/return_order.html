@@ -1,0 +1,84 @@
+{% extends 'app/base.html' %}
+{% load static %}
+
+{% block title %}{% endblock %}
+
+{% block main-content %}
+<div class="container my-5">
+    <div class="row">
+        <h3 style="font-family: 'Arial', sans-serif; text-transform: capitalize;">
+            Welcome <span style="font-family: 'Courier New', monospace;">{{ request.user }}📖</span>
+        </h3>
+        <h1 class="text-center mb-5" style="font-family: 'Arial Black', sans-serif; color: #198754; text-shadow: 0px 0px 4px rgba(0, 0, 0, 0.5);font-size: 35px;">Return Order</h1>
+        <div class="col-sm-8">
+            <div class="col-sm-10">
+                <div class="row mb-4">
+                    <div class="col-sm-2">
+                        <img src="{{ order.product.product_image.url }}" class="img-fluid" height="100" width="100" />
+                    </div>
+                    <div class="col-sm-7">
+                        <p>Product: <strong>{{ order.product.title }}</strong></p>
+                        <p>Author: <strong>{{ order.product.author }}</strong></p>
+                        <p>Quantity: <strong>{{ order.quantity }}</strong></p>
+                    </div>
+                </div>                
+            </div>
+        </div>
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-sm-6 form-container"> <!-- Added form-container class -->
+                    <form method="post" action="{% url 'return-order' order.id %}">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label for="reason" class="form-label">Reason for Return</label>
+                            <div>
+                                <input type="radio" id="reason-option1" name="reason" value="Received wrong item" required>
+                                <label for="reason-option1">Received wrong item</label>
+                            </div>
+                            <div>
+                                <input type="radio" id="reason-option2" name="reason" value="Doesn't need anymore" required>
+                                <label for="reason-option2">Don't want the product anymore</label>
+                            </div>
+                            <div>
+                                <input type="radio" id="reason-option2" name="reason" value="product is missing" required>
+                                <label for="reason-option2">Product is missing in the package</label>
+                            </div>
+                            <div>
+                                <input type="radio" id="reason-option2" name="reason" value="Poor quality" required>
+                                <label for="reason-option2">Quality of the product not as expected</label>
+                            </div>
+                            <div>
+                                <input type="radio" id="reason-other" name="reason" value="other reason: poor package" required>
+                                <label for="reason-other">Other reasons</label>
+                                <textarea class="form-control mt-2" id="other-reason" name="other_reason" rows="3" style="display: none;"></textarea>
+                            </div>
+                        </div>
+                        <div class="text-center"> <!-- Updated to center-align buttons -->
+                            <button type="submit" class="btn btn-danger">Return</button>
+                            <a href="{% url 'orders' %}" class="btn btn-secondary">Back to Orders</a>
+                        </div>
+                    </form>
+                    <br><br><br>
+                </div>
+            </div>
+        </div>        
+    </div>
+</div>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        // Get the radio buttons and other reason textarea
+        var radioOther = document.getElementById("reason-other");
+        var otherReasonTextarea = document.getElementById("other-reason");
+
+        // Add event listener to the radio button for "Other"
+        radioOther.addEventListener("change", function() {
+            // Toggle visibility of the textarea based on the radio button state
+            if (radioOther.checked) {
+                otherReasonTextarea.style.display = "block";
+            } else {
+                otherReasonTextarea.style.display = "none";
+            }
+        });
+    });
+</script>
+{% endblock main-content %}

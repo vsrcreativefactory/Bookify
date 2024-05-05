@@ -1,0 +1,178 @@
+{% extends 'app/base.html' %}
+
+
+{% block main-content %}
+<style>
+    /* Add this inside a <style> tag or your external CSS file */
+
+body {
+    font-family: Arial, sans-serif; /* or your preferred font */
+}
+
+h2 {
+    color: #333;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+form {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+label {
+    margin-right: 10px;
+}
+
+select {
+    padding: 5px 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+}
+
+.products {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 20px; /* Adjust the gap between products */
+}
+
+.product {
+    border: 1px solid #eee;
+    border-radius: 8px;
+    padding: 15px;
+    width: 300px; /* Adjust based on your preference */
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    transition: box-shadow 0.3s ease-in-out;
+}
+
+.product h3 {
+    color: #007bff; /* Or your theme color */
+    margin-bottom: 10px;
+}
+
+.product p {
+    line-height: 1.6;
+}
+
+.product:hover {
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+.pagination {
+    margin-top: 20px;
+    text-align: center;
+}
+
+.pagination .page-item {
+    display: inline-block;
+    margin-right: 5px;
+}
+
+.pagination .page-item a {
+    text-decoration: none;
+    color: green;
+    background-color: #fff;
+    border: 1px solid #ddd;
+    padding: 6px 12px;
+    border-radius: 3px;
+}
+
+.pagination .page-item.active a {
+    background-color: #007bff;
+    color: #fff;
+    border-color: #007bff;
+}
+
+.pagination .page-item.disabled a {
+    color: #6c757d;
+    pointer-events: none;
+    cursor: default;
+}
+
+.step-links {
+    display: flex;
+}
+
+.step-links a {
+    padding: 5px 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    margin-left: 5px;
+    text-decoration: none;
+    color: green;
+}
+
+.step-links a:hover {
+    background-color: #f0f0f0;
+}
+
+.current {
+    margin: 0 10px;
+}
+
+</style>
+    <h2>Search Results for "{{ query }}"</h2>
+
+    <!-- Sorting form -->
+    <form action="{% url 'search_results' %}" method="get">
+        <input type="hidden" name="query" value="{{ query }}">
+        <label for="sort_by">Sort by:</label>
+        <select name="sort_by" onchange="this.form.submit()">
+            <option value="">Select...</option>
+            <option value="price_asc" {% if sort_by == 'price_asc' %}selected{% endif %}>Price (Low to High)</option>
+            <option value="price_desc" {% if sort_by == 'price_desc' %}selected{% endif %}>Price (High to Low)</option>
+            <option value="popularity" {% if sort_by == 'popularity' %}selected{% endif %}>Popularity</option>
+            <option value="a_z" {% if sort_by == 'a_z' %}selected{% endif %}>Title (A to Z)</option>
+            <option value="z_a" {% if sort_by == 'z_a' %}selected{% endif %}>Title (Z to A)</option>
+            <option value="new_arrivals" {% if sort_by == 'new_arrivals' %}selected{% endif %}>New Arrivals</option>
+        </select>
+    </form>
+
+    <div class="products">
+        {% for product in page_obj %}
+            <div class="product">
+                <a href="{% url 'product-detail' pk=product.pk %}" style="text-decoration: none; color: red;">{{ product.title }}</a>
+                <p>₹ {{ product.discounted_price }}</p>
+                {% if product.product_image %}
+                    <img src="{{ product.product_image.url }}" alt="{{ product.title }} image" style="max-width: 100%; height: auto;">
+                {% else %}
+                    <p>No image available.</p>
+                {% endif %}
+
+                <!-- Add more product details as needed, such as price, images, etc. -->
+            </div>
+        {% empty %}
+            <p>No products found.</p>
+        {% endfor %}
+    </div>
+    <br><br>
+    <!-- Pagination -->
+    <div class="container mt-5">
+        <nav aria-label="Page navigation">
+            <ul class="pagination justify-content-center">
+                {% if page_obj.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page=1" tabindex="-1" aria-disabled="true">First</a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.previous_page_number }}">Previous</a>
+                    </li>
+                {% endif %}
+                {% for num in page_obj.paginator.page_range %}
+                    <li class="page-item {% if page_obj.number == num %}active{% endif %}">
+                        <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                    </li>
+                {% endfor %}
+                {% if page_obj.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.next_page_number }}">Next</a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}">Last</a>
+                    </li>
+                {% endif %}
+            </ul>
+        </nav>
+    </div>
+<br><br>  <br><br>  
+{% endblock main-content %}

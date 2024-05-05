@@ -1,0 +1,170 @@
+{% extends 'dashboard.html' %}
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <title>Bookify live</title>
+</head>
+
+<body>
+    {% block navbar-text %}
+    <span class="navbar-text" style="font-family: 'Pacifico', cursive; font-size: 1.5rem; color: #333;">
+        <strong>Manage Products</strong>
+    </span>
+    {% endblock navbar-text %}
+    {% block search-bar %}
+    <form class="d-flex">
+        <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search" id="searchInput">
+        <button class="btn btn-outline-success" type="button" onclick="performSearch()">
+            Go
+        </button>
+      </form>
+    {% endblock search-bar %}
+
+    {% block main-content %}
+    <style>
+        .highlighted {
+          background-color: yellow; /* Change the background color as desired */
+          color: black; /* Change the text color as desired */
+          font-weight: bold; /* Optionally, make the text bold */
+      }  
+      .pagination {
+        display: flex;
+        justify-content: flex-end;
+        margin-top: 20px;
+    }
+
+    .pagination li {
+        list-style: none;
+        display: inline-block;
+        margin-right: 5px;
+    }
+
+    .pagination li a {
+        text-decoration: none;
+        padding: 5px 10px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        background-color: #f9f9f9;
+        color: green;
+    }
+
+    .pagination li a:hover {
+        background-color: #e9e9e9;
+    }
+
+    .pagination .active a {
+        background-color: #007bff;
+        color: #fff;
+    }
+        
+      </style>
+
+    <!-- Displaying paginated products -->
+    <div class="container mt-5">
+        <table class="table table-striped table-hover">
+            <thead>
+                <tr>
+                    <th scope="col">ID</th>
+                    <th scope="col">TITLE</th>
+                    <th scope="col">IMAGE</th>
+                    <th scope="col">AUTHOR</th>
+                    <th scope="col">PRICE</th>
+                    <th scope="col">CATEGORY</th>
+                    <th scope="col">ACTIONS</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for product in page_obj %}
+                <tr>
+                    <td>{{ product.id }}</td>
+                    <td>{{ product.title }}</td>
+                    <td><img src="{{ product.product_image.url }}" alt="{{ product.title }}" width="50"></td>
+                    <td>{{ product.author }}</td>
+                    <td>{{ product.discounted_price }}</td>
+                    <td>{{ product.category }}</td>
+                    <td>
+                        <a href="{% url 'edit_products' product.id %}" class="btn btn-sm btn-primary">Edit</a> |
+                        <a href="{% url 'delete_product' product.pk %}" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure?');">Delete</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <!-- Pagination -->
+    <div class="container mt-5">
+        <nav aria-label="Page navigation">
+            <ul class="pagination justify-content-center">
+                {% if page_obj.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page=1" tabindex="-1" aria-disabled="true">First</a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.previous_page_number }}">Previous</a>
+                    </li>
+                {% endif %}
+                {% for num in page_obj.paginator.page_range %}
+                    <li class="page-item {% if page_obj.number == num %}active{% endif %}">
+                        <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                    </li>
+                {% endfor %}
+                {% if page_obj.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.next_page_number }}">Next</a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}">Last</a>
+                    </li>
+                {% endif %}
+            </ul>
+        </nav>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+    <script>
+        function performSearch() {
+            // Retrieve the search query
+            var searchQuery = document.getElementById('searchInput').value.trim();
+            
+            // If the search query is empty, do nothing
+            if (searchQuery === '') {
+                return;
+            }
+        
+            // Remove any existing highlighting
+            var highlightedElements = document.querySelectorAll('.highlighted');
+            highlightedElements.forEach(function(element) {
+                element.outerHTML = element.innerHTML; // Replace the element with its content
+            });
+        
+            // Find all occurrences of the search query in the page content
+            var pageContent = document.body.innerHTML;
+            var searchRegex = new RegExp(searchQuery, 'gi'); // 'gi' flag for case-insensitive and global search
+            var matches = pageContent.match(searchRegex);
+        
+            // Wrap each occurrence of the search query with a span element for highlighting
+            if (matches) {
+                matches.forEach(function(match) {
+                    var replacement = '<span class="highlighted">' + match + '</span>';
+                    pageContent = pageContent.replace(new RegExp(match, 'gi'), replacement);
+                });
+        
+                // Update the page content
+                document.body.innerHTML = pageContent;
+        
+                // Scroll to the first occurrence of the search query
+                var firstMatch = document.querySelector('.highlighted');
+                if (firstMatch) {
+                    firstMatch.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+            }
+        }
+        </script>
+    {% endblock main-content %}
+</body>
+</html>

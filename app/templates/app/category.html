@@ -1,0 +1,69 @@
+{% extends 'app/base.html' %}
+{% load static %}
+{% block title %}{% endblock title %}
+
+{% block main-content %}
+    <div class="container my-5">
+        <div class="row">
+            <div class="col-sm-3">
+                <div class="list-group">
+                   {% for val in title %}
+                  <a href="{% url 'category-title' val.title %}" class="list-group-item list-group-item-action"
+                   aria-current="true">
+                      {{val.title}}</a>
+                    {% endfor %}
+                </div>
+            </div>
+           </div class="col-sm-9">
+              <div class="row">
+                {% for prod in product %}
+                <div class="col text-center mb-4">
+                    <a href="{% url 'product-detail' prod.id %}" 
+                    class="btn">
+                    <div>
+                        <img src="{{prod.product_image.url}}" width="200px" height="350px">
+                        <div class="fw-bold">{{prod.title}}</div>
+                        <div class="fw-bold text-danger">
+                            ₹{{prod.discounted_price}} /-
+                            <small class="fw-light text-decoration line-through">
+                                <s>{{prod.selling_price}}</s>
+                            </small>
+                        </div>
+                    </div>
+                    </a>
+                </div>
+                {% endfor %}
+              </div>
+            </div>
+        </div>
+    </div>
+    <div class="container">
+        <div class="row">
+            <div class="col">
+                <!-- Pagination -->
+                <div class="pagination justify-content-end"> <!-- Right-align pagination -->
+                    <span class="step-links">
+                        {% if product.has_previous %}
+                            <a href="?page=1">&laquo; first</a>
+                            <a href="?page={{ product.previous_page_number }}">previous</a>
+                        {% endif %}
+    
+                        <span class="current">
+                            {% if product.paginator.num_pages == 1 %}
+                                Page 1 of 1
+                            {% else %}
+                                Page 1{{ product.number }} of {{ product.paginator.num_pages }}1
+                            {% endif %}
+                        </span>
+    
+                        {% if product.has_next %}
+                            <a href="?page={{ product.next_page_number }}">next</a>
+                            <a href="?page={{ product.paginator.num_pages }}">last &raquo;</a>
+                        {% endif %}
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>       
+    <br><br>
+{% endblock main-content %}

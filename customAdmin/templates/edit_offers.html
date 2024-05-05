@@ -1,0 +1,69 @@
+{% extends 'dashboard.html' %}
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product Offers</title>
+</head>
+<body>
+    {% block navbar-text %}
+        <span class="navbar-text" style="font-family: 'Pacifico', cursive; font-size: 1.5rem; color: #333;">
+            <strong>Product Offers</strong>
+        </span>
+    {% endblock navbar-text %}
+    {% block search-bar %}
+    {% endblock search-bar %}
+
+    {% block main-content %}
+    <div class="container mt-5">
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        Add Product Offer
+                    </div>
+                    <div class="card-body">
+                        <form method="post" action="{% url 'add_product_offer' %}">
+                            {% csrf_token %}
+                            {{ form.as_p }}
+                            <button type="submit" class="btn btn-success">Add Offer</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container mt-5">
+        <table class="table table-striped table-hover">
+            <thead>
+                <tr>
+                    <th>Product</th>
+                    <th>Discount Percentage</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for product_offer in product_offers %}
+                <tr>
+                    <td>{{ product_offer.product.title }}</td>
+                    <td>{{ product_offer.discount_percentage }}</td>
+                    <td>
+                        <a href="{% url 'delete_product_offer' product_offer.pk %}" style="background-color: white; display: inline-block; padding: 5px; border-radius: 50%;">
+                            <img src="{% static 'app/images/banner/delete.png' %}" alt="Remove" style="width: 28px; height: 28px;">
+                        </a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="3">No product offers found.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% endblock main-content %}
+</body>
+</html>

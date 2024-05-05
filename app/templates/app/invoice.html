@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Invoice</title>
+    <style>
+        .button-container {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+        }
+        .custom-btn {
+            padding: 10px 20px;
+            border-radius: 5px;
+            font-size: 16px;
+            font-weight: bold;
+            margin-right: 10px;
+            cursor: pointer;
+        }
+        .custom-btn-info {
+            background-color: green;
+            color: white;
+        }
+        .custom-btn-success {
+            background-color: red;
+            color: white;
+        }
+        .custom-btn-light {
+            background-color: #007bff;
+            color: white;
+        }
+        .invoice-header {
+            text-align: center;
+        }
+        .invoice-header h1 {
+            font-weight: bold;
+        }
+        .invoice-header h2 {
+            font-size: 1.5em;
+        }
+        .invoice-header h3 {
+            font-size: 1.2em;
+        }
+        .invoice-title {
+            color: red;
+            font-size: 2.0em;
+            text-align: center;
+        }
+        .divider {
+            border-bottom: 2px solid black;
+            margin: 20px 0;
+        }
+        .bill-details {
+            margin-bottom: 20px;
+        }
+        .table-container {
+            margin-bottom: 20px;
+        }
+        .table-container table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .table-container th, .table-container td {
+            border: 1px solid black;
+            padding: 8px;
+            text-align: center;
+        }
+        .thank-you {
+            color: green;
+            text-align: center;
+        }
+        .address-container {
+            text-align: right;
+        }
+        .address-container p {
+            display: inline-block; /* Ensures that the container is centered */
+        }
+        .ship-to {
+            padding-left: 1200px; /* Adjust the value as needed */
+        }
+        
+    </style>
+</head>
+<body>
+    <div class="invoice-header">
+        <h1>BOOKIFY Live</h1>
+        <h2>Online Book Store</h2>
+        <h3>Customer Care : 1800-725-4207</h3>
+    </div>
+    <div class="divider">_____________________________</div>
+    <div class="bill-details">
+      <div>
+        <p><strong>Bill To: {{ request.user|upper }}</strong></p>
+        <div class="ship-to">
+            <p><strong>Ship To:</strong></p>
+            <p><strong>{{ selected_address.name|upper }}</strong></p>
+            <p><strong>{{ selected_address.locality }}</strong></p>
+            <p><strong>{{ selected_address.state }}, PIN {{ selected_address.zipcode }}</strong></p>
+            <p><strong>Mobile: {{ selected_address.mobile }}</strong></p>
+
+            
+          {{ selected_address. }}</p>
+        </div>
+            <p><strong>Date:</strong> {{ today }}</p>
+        <p><strong>Invoice Number:</strong> {{ invoice_number }}</p>
+        <div class="invoice-title"><strong>INVOICE</strong></div>
+      </div>
+    </div>
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>Item</th>
+                    <th>Category</th>
+                    <th>Qty</th>
+                    <th>Payment method</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Populate this section dynamically with your order details -->
+                {% for item in ordered_items %}
+                <tr>
+                    <td>{{ item.title }}</td>
+                    <td>{{ item.category }}</td>
+                    <td>{{ item.quantity }}</td>
+                    <td>{{ payment_method }}</td>
+                </tr>
+                {% endfor %}           
+            </tbody>
+        </table>
+    </div>
+    <div class="table-container">
+        <table>
+            <tbody>
+                <tr>
+                    <td>Total Amount</td>
+                    <td>₹ {{ total_amount }}</td>
+                </tr>
+                <tr>
+                    <td>Shipping</td>
+                    <td>₹ 40.00</td>
+                </tr>
+                <tr>
+                    <td>Tax</td>
+                    <td>₹ 20.00</td>
+                </tr>
+                <tr>
+                    <td>Offer</td>
+                    <td>0.00</td>
+                </tr>
+                <tr>
+                    <td><strong>Grand Total</strong></td>
+                    <td><strong>₹ {{ grand_total }}</strong></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="thank-you">
+        <h2>THANK YOU</h2>
+    </div>
+
+    <div class="container">
+        <div class="row mt-5">
+            <div class="col-sm-12 button-container">
+                <button type="button" class="btn custom-btn custom-btn-info" onclick="window.location.href='{% url 'download_pdf' %}'">Download Invoice</button>
+                <button type="button" class="btn custom-btn custom-btn-success" onclick="window.location.href='{% url 'orders' %}'">Go to Orders</button>
+                <button type="button" class="btn custom-btn custom-btn-light" onclick="window.location.href='{% url 'home' %}'">Continue Shopping</button>
+            </div>
+        </div>
+    </div>
+    <br><br>
+</body>
+</html>

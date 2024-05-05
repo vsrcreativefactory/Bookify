@@ -1,0 +1,186 @@
+{% extends 'app/base.html' %}
+{% load static %}
+{% block title %}{% endblock title %}
+
+{% block main-content %}
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@600&display=swap');
+    @keyframes pop {
+        0% { transform: scale(0.95); opacity: 0.7; }
+        50% { transform: scale(1.05); opacity: 1; }
+        100% { transform: scale(1); opacity: 1; }
+    }
+    
+    .total-amount-total {
+        animation: pop 5.9s ease-out forwards 5;
+        color: red;
+    }
+    @media (max-width: 768px) {
+        .total-amount-card-wrapper {
+            width: 100%;
+            margin-top: 40px;
+        }
+    }
+    .pagination {
+        margin-top: 20px;
+        text-align: center;
+    }
+    
+    .pagination .page-item {
+        display: inline-block;
+        margin-right: 5px;
+    }
+    
+    .pagination .page-item a {
+        text-decoration: none;
+        color: green;
+        background-color: #fff;
+        border: 1px solid #ddd;
+        padding: 6px 12px;
+        border-radius: 3px;
+    }
+    
+    .pagination .page-item.active a {
+        background-color: #007bff;
+        color: #fff;
+        border-color: #007bff;
+    }
+    
+    .pagination .page-item.disabled a {
+        color: #6c757d;
+        pointer-events: none;
+        cursor: default;
+    }
+</style>
+<div class="container my-5">
+    <div class="row">
+        <h3 style="font-family: 'Arial', sans-serif; text-transform: capitalize;">
+            Welcome <span style="font-family: 'Courier New', monospace;">{{ request.user }}📖</span>
+        </h3>
+    </div>
+    <div class="row">
+        <div class="col-sm-2 border-end">       
+            <ul class="list-unstyled">
+                <li class="d-grid"><a href="{% url 'orders' %}" class="btn btn-light">Your Orders</a></li>
+                <br>
+            <li class="d-grid"><a href="#" class="btn btn-success">Wallet History</a></li>
+            </ul>
+            <li class="list-group-item d-flex justify-content-between align-items-center total-amount-total">Wallet balance : ₹ {{ wallet_balance }}</li>
+            {% comment %} <li class="d-grid"><a href="" class="btn btn-light">➕Add</a></li>
+            <form method="post" id="add-to-wallet-form" action="{% url 'add-to-wallet' %}">
+                {% csrf_token %}
+                <input type="number" name="amount" id="wallet-amount" placeholder="Enter amount to add to wallet" required>
+                <button type="button" id="add-to-wallet-button">Add to Wallet</button>
+            </form>             {% endcomment %}
+            
+        </div>
+        <div class="col-sm-10">
+            {% comment %} <h1>new code here</h1> {% endcomment %}
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th scope="col">ID</th>
+                        <th scope="col">Type</th>
+                        <th scope="col">Date</th>
+                        <th scope="col">Amount</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for transaction in page_obj %}
+                    <tr>
+                        <td>{{ transaction.id }}</td>
+                        <td style="{% if transaction.type == 'PURCHASE' %} color: red; {% else %} color: green; {% endif %}">{{ transaction.type }}</td>
+                        <td>{{ transaction.date }}</td>
+                        <td style="{% if transaction.type == 'PURCHASE' %} color: red; {% else %} color: green; {% endif %}">
+                            {% if transaction.type == 'PURCHASE' %}-{% endif %}
+                            {% if transaction.type == 'REFUND' %}+{% endif %}
+                            {% if transaction.type == 'RETURN-REFUND' %}+{% endif %}
+                            {{ transaction.amount }}
+                        </td>
+                      </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="4">No transactions found.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            <!-- Pagination links -->
+        <div class="pagination justify-content-center">
+            <ul class="pagination">
+                {% if page_obj.has_previous %}
+                <li class="page-item">
+                    <a class="page-link" href="?page=1">&laquo; First</a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.previous_page_number }}">Previous</a>
+                </li>
+                {% endif %}
+
+                <li class="page-item disabled">
+                    <span class="page-link">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+                </li>
+
+                {% if page_obj.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.next_page_number }}">Next</a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}">Last &raquo;</a>
+                </li>
+                {% endif %}
+            </ul>
+        </div>
+            <br><br><br><br><br><br>
+        <div>
+        
+    </div>
+</div>
+<br><br>
+{% endblock main-content %}
+{% block payment-gateway %}
+<script>
+    document.getElementById('add-to-wallet-button').addEventListener('click', function() {
+        var amount = parseFloat(document.getElementById('wallet-amount').value);
+        if (amount > 0) {
+            var csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+            
+            fetch("{% url 'create_razorpay_order' %}", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrftoken
+                },
+                body: JSON.stringify({
+                    amount: amount
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                var options = {
+                    "key": "rzp_test_UnsJoyJd0oZnFY", // Enter the Key ID generated from the Dashboard
+                    "amount": data.amount, // Amount is in currency subunits. Default currency is INR. Hence, 50000 refers to 50000 paise
+                    "currency": "INR",
+                    "name": "Bookify live",
+                    "description": "Add Funds to Wallet",
+                    "order_id": data.id,
+                    "handler": function (response){
+                        console.log("success")
+                        // Handle success
+                        // You can redirect to a success page or perform any other action here
+                        window.location.href = "{% url 'wallet' %}";
+                    },
+                    "theme": {
+                        "color": "#3399cc"
+                    }
+                };
+                var rzp = new Razorpay(options);
+                rzp.open();
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        }
+    });
+    </script>
+{% endblock payment-gateway %}

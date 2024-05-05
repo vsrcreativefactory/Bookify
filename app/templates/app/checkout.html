@@ -1,0 +1,214 @@
+{% extends 'app/base.html' %}
+{% load static %}
+{% block title %}
+{% endblock title %}
+
+{% block main-content %}
+<div class="container">
+    <div class="row mt-5">
+        <div class="col-sm-6">
+            <h4>Order Summary</h4>
+            <hr>
+            {% for item in cart_items %}
+                <div class="card mb-2">
+                    <div class="card-body">
+                        <img src="{{ item.product.product_image.url }}" alt="product image" style="height: 100px; width: auto;">
+                        <h5>Product: <span style="color: green;">{{ item.product.title }}</span></h5>
+                        <p>Quantity: <span style="color: red;">{{ item.quantity }}</span></p>
+                        <p class="fw-bold">Price: <span style="color: green;">₹ {{ item.product.discounted_price }}</span></p>
+                    </div>
+                </div>
+            {% endfor %}
+            {% comment %} <p class="fw-bold">Total Cost + ₹ 40 (shipping) = ₹ {{ totalamount }}</p> {% endcomment %}
+            <div class="card text-white bg-success mb-3" style="max-width: 30rem;">
+                <div class="card-header">Wallet Balance: ₹ {{ wallet.balance }}</div>
+                <div class="card-body">
+                  <h5 class="card-title">PURCHASE RECEIPT</h5>
+                    {% comment %} <h3 class="total-amount-title">The Total Amount of</h3> {% endcomment %}
+                    <ul class="list-group total-amount-list">
+                        <li class="list-group-item d-flex justify-content-between align-items-center">Amount<span id="amount">₹ {{famount}}</span></li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">Shipping<span>₹ 40.00</span></li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">Tax<span>₹ 20.00</span></li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">- Offer<span>{{ product.discount }}10%</span></li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center total-amount-total">
+                            <div>
+                            <strong>Grant Total</strong>
+                            </div>
+                            <span id="totalamount"><strong>₹ {{ totalamount }}</strong></span> 
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <small>Term and Conditions: By proceeding with payment, you agree to our terms, including no refunds and processing in rupees, and acknowledge our Privacy Policy.</small>
+        </div>
+        <div class="col-sm-4 offset-sm-1">
+            <form method="post" id="myform">
+                {% csrf_token %}
+                <input type="hidden" name="custid" value="{{ customer.id }}">
+
+                <input type="hidden" name="totalamount" value="{{ totalamount }}">
+            <h4>Select Shipping Address</h4>
+            <hr>
+            <!-- Radio buttons for addresses -->
+            {% comment %} {% csrf_token %} {% endcomment %}
+        <div class="row">
+            <div id="address-error" class="alert alert-danger" style="display: none;">
+                Please select a shipping address.
+            </div> 
+            <div id="cod-error" class="alert alert-danger" style="display: none;">
+                COD is not available for orders above ₹1500
+            </div>        
+            {% for ad in add %}
+            <div class="col-sm-6" style="width: 219px;">
+                <!-- Address box with radio button on top -->
+                <div class="card mb-3">
+                    <!-- Radio button for selecting address -->
+                    <div class="form-check mt-2">
+                        <input class="form-check-input" type="radio" name="custid" id="custadd{{ forloop.counter }}" value="{{ ad.id }}">
+                        <label class="form-check-label fw-bold" for="custadd{{ forloop.counter }}" style="color: red;">
+                            Address: {{ forloop.counter }}
+                        </label>
+                    </div>
+                    <!-- Address details -->
+                    <div class="card-body">
+                        <h5 style="color: green;">{{ ad.name }}</h5>
+                        <p>{{ ad.locality }} {{ ad.city }} {{ ad.state }} PIN {{ ad.zipcode }}</p>
+                        <p>Mobile: {{ ad.mobile }}</p>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+        <!-- "Edit Address" button -->
+        <div class="row mt-3">
+            <div class="col-sm-12 text-end">
+            <a href="{% url 'address' %}" style="text-decoration: none; color: inherit; font-size: 13px;"><span>Edit Address?</span></a>
+            </div>   
+        </div>
+    {% comment %} new code starts here {% endcomment %}
+    <div class="container">
+        <div class="row mt-5">
+            <div class="col-sm-12">
+                <h4>Select Payment Mode</h4>
+                <hr>
+                <!-- Button for Cash on Delivery -->
+            <div class="form-check mt-3">
+                <button class="btn btn-outline-success" type="submit" name="payment_method" value="cod" id="cod-button">
+                    Cash on Delivery
+                </button>
+            </div>
+            <!-- Button for Pay from Wallet -->
+            <div class="form-check mt-3">
+                <button class="btn btn-outline-primary" type="submit" name="payment_method" value="wallet" id="wallet-button">
+                    Pay from Wallet
+                </button>
+            </div>
+            <!-- Button for Online Payment -->
+            <div class="form-check mt-3">
+                <button class="btn btn-outline-danger" type="submit" name="payment_method" id="rzp-button1">
+                    Online Payment
+                </button>
+            </div>
+        </div>     
+    </div> 
+    <br>
+    {% if messages %}
+        {% for msg in messages %}
+            <div class="alert alert-danger" role="alert">
+                {{ msg }}
+            </div>
+        {% endfor %}
+    {% endif %}          
+    {% comment %} new code ends here {% endcomment %}
+</div>
+            </form>
+        </div>
+    </div>
+</div>
+<br><br><br><br>
+{% endblock main-content %}
+{% comment %} Verify Form Submission: Confirm that the form (myform) is being submitted correctly when the button is clicked. {% endcomment %}
+{% block payment-gateway %}
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<script>
+var options = {
+    "key": "rzp_test_UnsJoyJd0oZnFY", // Enter the Key ID generated from the Dashboard
+    "amount": "{{razoramount}}", // Amount is in currency subunits. Default currency is INR. Hence, 50000 refers to 50000 paise
+    "currency": "INR",
+    "name": "Bookify live",
+    "description": "Purchase products",
+    //"image": "app/images/banner/logo.png",
+    "order_id": "{{order_id}}", //This is a sample Order ID. Pass the `id` obtained in the response of Step 1
+    "handler": function (response){
+        console.log("success")
+        var form = document.getElementById("myform");
+        //alert(response.razorpay_payment_id);
+        //alert(response.razorpay_order_id);
+        //alert(response.razorpay_signature)
+        console.log("Redirecting to: location needed"); 
+        window.location.href = `http://localhost:8000/paymentdone?order_id=${response.razorpay_order_id}&payment_id=${response.razorpay_payment_id}&cust_id=${form.elements["custid"].value}`
+    },
+    "theme": {
+        "color": "#3399cc"
+    }
+};
+var rzp1 = new Razorpay(options);
+rzp1.on('payment.failed', function (response){
+        alert(response.error.description);
+});
+document.getElementById('rzp-button1').onclick = function(e){
+    console.log("Online Payment button clicked");
+    // Check if any address is selected
+    var addressSelected = document.querySelector('input[name="custid"]:checked');
+    if (!addressSelected) {
+        // If no address is selected, display an error message
+        document.getElementById('address-error').style.display = 'block';
+        return false; // Prevent the Razorpay checkout from opening
+    } else {
+        // If an address is selected, hide the error message
+        document.getElementById('address-error').style.display = 'none';
+    }
+    rzp1.open();
+    e.preventDefault(); //correct now
+}
+
+//COD address checking
+document.getElementById('cod-button').onclick = function(e){
+    // Get the total amount of the order
+    var totalAmount = parseFloat("{{ totalamount }}");
+    
+    // Check if the total amount exceeds Rs 1500
+    if (totalAmount > 1500) {
+        // Display an error message for exceeding the COD limit
+        document.getElementById('cod-error').style.display = 'block';
+        return false; // Prevent form submission
+    } else {
+        // Check if any address is selected for COD
+        var addressSelected = document.querySelector('input[name="custid"]:checked');
+        if (!addressSelected) {
+            // If no address is selected, display an error message
+            document.getElementById('address-error').style.display = 'block';
+            return false; // Prevent form submission
+        } else {
+            // If an address is selected, hide the error message and allow form submission
+            document.getElementById('address-error').style.display = 'none';
+            return true; // Allow form submission
+        }
+    }
+};
+
+//wallet address checking
+document.getElementById('wallet-button').onclick = function(e){
+    var addressSelected = document.querySelector('input[name="custid"]:checked');
+    if (!addressSelected) {
+        // If no address is selected, display an error message
+        document.getElementById('address-error').style.display = 'block';
+        return false; // Prevent form submission
+    } else {
+        // If an address is selected, hide the error message and allow form submission
+        document.getElementById('address-error').style.display = 'none';
+    }
+};
+
+</script>
+{% endblock payment-gateway %}
